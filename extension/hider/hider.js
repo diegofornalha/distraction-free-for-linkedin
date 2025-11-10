@@ -110,6 +110,74 @@ function toggleMasterSwitch() {
   }
 }
 
+// --- Mark posts from followed people ---
+(function markFollowingPosts() {
+  function checkAndMarkPost(post) {
+    // Skip if already checked
+    if (post.hasAttribute('data-dfl-checked')) return;
+    post.setAttribute('data-dfl-checked', 'true');
+
+    // Look for "Seguindo" or "Following" text in the post header
+    // LinkedIn uses different languages, so check for common variations
+    const postText = post.innerText || post.textContent || '';
+    const headerElement = post.querySelector('.update-components-actor__meta, .update-components-actor, [class*="actor"]');
+
+    if (headerElement) {
+      const headerText = headerElement.innerText || headerElement.textContent || '';
+      // Check for following indicators in multiple languages
+      const isFollowing = /•\s*(Seguindo|Following|Segue|Volgt|Suivez|Folgst|Segui)/i.test(headerText);
+
+      if (isFollowing) {
+        post.classList.add('dfl-following');
+      }
+    }
+  }
+
+  // Check existing posts
+  function checkExistingPosts() {
+    const posts = document.querySelectorAll('.feed-shared-update-v2');
+    posts.forEach(checkAndMarkPost);
+  }
+
+  // Initial check after a short delay to let DOM settle
+  setTimeout(checkExistingPosts, 1000);
+
+  // Observe for new posts being added
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      mutation.addedNodes?.forEach((node) => {
+        if (node.nodeType === 1) { // Element node
+          // Check if the node itself is a post
+          if (node.classList?.contains('feed-shared-update-v2')) {
+            checkAndMarkPost(node);
+          }
+          // Check if the node contains posts
+          const posts = node.querySelectorAll?.('.feed-shared-update-v2');
+          posts?.forEach(checkAndMarkPost);
+        }
+      });
+    }
+  });
+
+  // Start observing when DOM is ready
+  if (document.body) {
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    });
+  }
+
+  // Also re-check periodically as LinkedIn dynamically updates content
+  setInterval(checkExistingPosts, 3000);
+})();
+
 // --- Ensure master switch toggle exists (recreate on SPA changes; no polling) ---
 (function ensureToggle() {
   function buildIfMissing() {

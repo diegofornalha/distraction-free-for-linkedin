@@ -83,11 +83,16 @@ main > .mb2.artdeco-dropdown--placement-bottom {
   visibility: hidden;
 }
 
-/* Hide main newsfeed, but allow individual post pages and activity feeds */
+/* Hide main newsfeed posts by default, but allow individual post pages and activity feeds */
 .feed-shared-update-v2:not(section.fixed-full > .feed-shared-update-v2):not(
   div:not([data-id]) > .occludable-update > .feed-shared-update-v2
 ) {
   visibility: hidden;
+}
+
+/* Show posts from people you follow (marked by JavaScript) */
+.feed-shared-update-v2.dfl-following {
+  visibility: visible !important;
 }
 
 /* Hide "new posts" pill */
@@ -95,16 +100,8 @@ main > .mb2.artdeco-dropdown--placement-bottom {
   visibility: hidden;
 }
 
-/* Hide new main feed container (2025 update) */
-div[data-testid="mainFeed"],
-div[componentkey*="mainFeed"] {
-  visibility: hidden !important;
-}
-
-/* Optional: also catch nested container just in case */
-div[data-testid="mainFeed"] > div {
-  visibility: hidden !important;
-}
+/* Note: Container visibility is now controlled at post level (see .feed-shared-update-v2 rules above)
+   to allow showing only posts from followed people */
 
 /* Hide "LinkedIn News" + "Today's Puzzles" card */
 [componentkey="newsAndGamesCard"] {
