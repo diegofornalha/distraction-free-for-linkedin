@@ -117,9 +117,21 @@ function toggleMasterSwitch() {
     if (post.hasAttribute('data-dfl-checked')) return;
     post.setAttribute('data-dfl-checked', 'true');
 
+    // Get full post text
+    const postText = post.innerText || post.textContent || '';
+
+    // Check if post is a "Suggestion" - these should always be hidden
+    // Look for "Sugestões" or "Suggestions" in multiple languages
+    const isSuggestion = /\b(Sugestões|Suggestions|Sugerencias|Vorschläge|Suggerimenti)\b/i.test(postText);
+
+    if (isSuggestion) {
+      // Mark as suggestion post to be hidden
+      post.classList.add('dfl-suggestion-post');
+      return;
+    }
+
     // Look for "Seguindo" or "Following" text in the post header
     // LinkedIn uses different languages, so check for common variations
-    const postText = post.innerText || post.textContent || '';
     const headerElement = post.querySelector('.update-components-actor__meta, .update-components-actor, [class*="actor"]');
 
     if (headerElement) {
@@ -135,7 +147,7 @@ function toggleMasterSwitch() {
 
   // Check existing posts
   function checkExistingPosts() {
-    const posts = document.querySelectorAll('.feed-shared-update-v2');
+    const posts = document.querySelectorAll('.feed-shared-update-v2, article.main-feed-activity-card');
     posts.forEach(checkAndMarkPost);
   }
 
@@ -148,11 +160,12 @@ function toggleMasterSwitch() {
       mutation.addedNodes?.forEach((node) => {
         if (node.nodeType === 1) { // Element node
           // Check if the node itself is a post
-          if (node.classList?.contains('feed-shared-update-v2')) {
+          if (node.classList?.contains('feed-shared-update-v2') ||
+              (node.tagName === 'ARTICLE' && node.classList?.contains('main-feed-activity-card'))) {
             checkAndMarkPost(node);
           }
           // Check if the node contains posts
-          const posts = node.querySelectorAll?.('.feed-shared-update-v2');
+          const posts = node.querySelectorAll?.('.feed-shared-update-v2, article.main-feed-activity-card');
           posts?.forEach(checkAndMarkPost);
         }
       });

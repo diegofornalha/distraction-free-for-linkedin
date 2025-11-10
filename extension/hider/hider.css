@@ -78,6 +78,52 @@ a[href^="/games/"] {
 
 /* ---------- Home (Feed) ---------- */
 
+/* Hide "Começar publicação" sharebox - Multiple selectors for robustness */
+[data-view-name="share-sharebox-focus"],
+[componentkey*="sharebox"],
+[data-view-name*="share-sharebox"],
+div[role="button"][aria-label*="Começar publicação"],
+div[role="button"][aria-label*="Start a post"] {
+  display: none !important;
+}
+
+/* Hide the entire sharebox container */
+@supports selector(:has(*)) {
+  /* Hide parent container that has sharebox */
+  div:has(> div > div > [data-view-name="share-sharebox-focus"]),
+  div:has(> div > [data-view-name="share-sharebox-focus"]),
+  div:has(> [data-view-name="share-sharebox-focus"]) {
+    display: none !important;
+  }
+
+  /* Hide container with specific structure matching the sharebox */
+  div.ea28dc8a:has([aria-label*="Começar"]),
+  div.ea28dc8a:has([aria-label*="Start a post"]) {
+    display: none !important;
+  }
+}
+
+/* Hide ad iframes in feed and footer links */
+iframe[componentkey*="_ad"],
+iframe[title*="anúncio" i],
+iframe[title*="advertisement" i] {
+  display: none !important;
+}
+
+/* Hide containers that hold ad iframes */
+@supports selector(:has(*)) {
+  div:has(> iframe[componentkey*="_ad"]),
+  div:has(> iframe[title*="anúncio" i]),
+  div:has(> iframe[title*="advertisement" i]) {
+    display: none !important;
+  }
+}
+
+/* Hide footer with LinkedIn links */
+footer:has(a[href*="about.linkedin.com"]) {
+  display: none !important;
+}
+
 /* Hide "feed controls" dropdown */
 main > .mb2.artdeco-dropdown--placement-bottom {
   visibility: hidden;
@@ -90,9 +136,34 @@ main > .mb2.artdeco-dropdown--placement-bottom {
   visibility: hidden;
 }
 
+/* Hide new article-based posts */
+article.main-feed-activity-card {
+  visibility: hidden;
+}
+
 /* Show posts from people you follow (marked by JavaScript) */
-.feed-shared-update-v2.dfl-following {
+.feed-shared-update-v2.dfl-following,
+article.main-feed-activity-card.dfl-following {
   visibility: visible !important;
+}
+
+/* Hide posts marked as "Sugestões" (Suggestions) */
+/* Using :has() to detect posts containing the Suggestions label */
+@supports selector(:has(*)) {
+  [role="listitem"]:has(p[componentkey]:not(:empty)) {
+    /* Check if post contains "Sugestões" text */
+  }
+
+  /* More specific: hide posts that have the Suggestions label */
+  .feed-shared-update-v2:has([class*="_017b94b6"]),
+  [role="listitem"][componentkey*="FeedType_MAIN_FEED"]:has([class*="_017b94b6"]) {
+    display: none !important;
+  }
+}
+
+/* Fallback: JavaScript will add this class to suggestion posts */
+.dfl-suggestion-post {
+  display: none !important;
 }
 
 /* Hide "new posts" pill */
